@@ -59,6 +59,7 @@ runs:
 
     - name: Lowercase the tags
       id: tags
+      shell: bash
       run: |
         echo "tags=$(echo '${{ steps.meta.outputs.tags }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
