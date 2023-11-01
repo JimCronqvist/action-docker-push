@@ -57,13 +57,21 @@ runs:
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
 
+    - name: Lowercase the tags
+      id: tags
+      shell: bash
+      run: |
+        echo 'tags<<EOF' >> $GITHUB_OUTPUT
+        echo '${{ steps.meta.outputs.tags }}' | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
+        echo 'EOF' >> $GITHUB_OUTPUT
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v5
       with:
         context: ${{ inputs.context }}
         file: ${{ inputs.dockerfile }}
         push: ${{ github.event_name != 'pull_request' || inputs.pull-requests }}
-        tags: ${{ steps.meta.outputs.tags }}
+        tags: ${{ steps.tags.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: |
           ${{ inputs.cache-from }}
