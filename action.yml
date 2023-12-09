@@ -20,6 +20,9 @@ inputs:
     description: 'Add provenance attestations to include facts about the build process to the built images'
     required: false
     default: false
+  platforms:
+    description: 'List of target platforms for build'
+    required: false
   pull-requests:
     description: 'If pull requests should be pushed to the registry or not.'
     required: false
@@ -76,6 +79,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         push: ${{ github.event_name != 'pull_request' || inputs.pull-requests }}
         provenance: ${{ inputs.provenance }}
+        platforms: ${{ inputs.platforms }}
         tags: ${{ steps.tags.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: |
