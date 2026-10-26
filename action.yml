@@ -16,6 +16,9 @@ inputs:
   build-args:
     description: 'List of build-time variables for the Dockerfile'
     required: false
+  secrets:
+    description: 'List of secrets to expose to the build (e.g., id=secret_name)'
+    required: false
   provenance:
     description: 'Add provenance attestations to include facts about the build process to the built images'
     required: false
@@ -82,6 +85,7 @@ runs:
         platforms: ${{ inputs.platforms }}
         tags: ${{ steps.tags.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        secrets: ${{ inputs.secrets }}
         cache-from: |
           ${{ inputs.cache-from }}
         cache-to: |
