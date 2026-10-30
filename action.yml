@@ -34,6 +34,10 @@ inputs:
     description: 'Whether to push images for pull request builds. Builds still run when false.'
     required: false
     default: 'false'
+  load:
+    description: 'Load image into local Docker daemon if not pushing (single platform only).'
+    required: false
+    default: 'false'
   image-name:
     description: 'Docker image name in the format <org>/<repo>. Default is {{ github.repository }}'
     required: false
@@ -114,6 +118,7 @@ runs:
         tags: ${{ steps.tags.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         annotations: ${{ steps.meta.outputs.annotations }}
+        load: ${{ inputs.load }}
         secrets: |
           ${{ inputs.secrets }}
         cache-from: |
