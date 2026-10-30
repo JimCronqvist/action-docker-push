@@ -64,6 +64,10 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Set up QEMU for platform emulation support
+      if: ${{ inputs.platforms != '' }}
+      uses: docker/setup-qemu-action@v4
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v4
 
@@ -85,6 +89,9 @@ runs:
           type=ref,event=pr
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
+      #env:
+      #  # Ensures OCI annotations attach to both root multi-arch index and individual manifests
+      #  DOCKER_METADATA_ANNOTATIONS_LEVELS: manifest,index
 
     - name: Lowercase the tags
       id: tags
@@ -93,10 +100,6 @@ runs:
         echo 'tags<<EOF' >> $GITHUB_OUTPUT
         echo '${{ steps.meta.outputs.tags }}' | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
         echo 'EOF' >> $GITHUB_OUTPUT
-
-    - name: Set up QEMU for platform emulation support
-      if: ${{ inputs.platforms != '' }}
-      uses: docker/setup-qemu-action@v4
 
     - name: Build and push Docker image
       id: build
