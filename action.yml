@@ -23,6 +23,10 @@ inputs:
     description: 'Add provenance attestations to include facts about the build process to the built images'
     required: false
     default: 'false'
+  sbom:
+    description: 'Generate a Software Bill of Materials (SBOM) attestation for the Docker image for vulnerability scanning and license compliance.'
+    required: false
+    default: 'true'
   platforms:
     description: 'List of target platforms for build'
     required: false
@@ -37,11 +41,11 @@ inputs:
   cache-from:
     description: 'External cache sources for buildx'
     required: false
-    default: ''
+    default: '' # 'type=gha'
   cache-to:
     description: 'Cache export destinations for buildx'
     required: false
-    default: 'type=inline'
+    default: 'type=inline' # 'type=gha,mode=max,ignore-error=true'
 
 outputs:
   image-id:
@@ -90,6 +94,10 @@ runs:
         echo '${{ steps.meta.outputs.tags }}' | tr '[:upper:]' '[:lower:]' >> $GITHUB_OUTPUT
         echo 'EOF' >> $GITHUB_OUTPUT
 
+    - name: Set up QEMU for platform emulation support
+      if: ${{ inputs.platforms != '' }}
+      uses: docker/setup-qemu-action@v4
+
     - name: Build and push Docker image
       id: build
       uses: docker/build-push-action@v7
@@ -98,9 +106,11 @@ runs:
         file: ${{ inputs.dockerfile }}
         push: ${{ !contains(fromJSON('["pull_request","pull_request_target"]'), github.event_name) || inputs.pull-requests == 'true' }}
         provenance: ${{ inputs.provenance }}
+        sbom: ${{ inputs.sbom }}
         platforms: ${{ inputs.platforms }}
         tags: ${{ steps.tags.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        annotations: ${{ steps.meta.outputs.annotations }}
         secrets: |
           ${{ inputs.secrets }}
         cache-from: |
