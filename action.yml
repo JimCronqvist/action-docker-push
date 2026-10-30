@@ -5,6 +5,7 @@ inputs:
   token:
     description: 'GitHub Token {{ secrets.GITHUB_TOKEN }} with permission to publish packages to GHCR (packages: write).'
     required: true
+    default: ${{ github.token }}
   context:
     description: 'Docker build context. Defaults to the checked-out repository directory.'
     required: false
